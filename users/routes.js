@@ -1,6 +1,27 @@
 let router = require('express').Router();
 const fileHandling = require('../_helpers/fileHandling');
 
+router.get('/validate', (req, res) => {
+  const token = req.headers.token;
+
+  if (!token)
+    return res.status(400).json({ message: 'please provide token' });
+
+  const fileData = fileHandling.readAsync('./assets/users.json');
+  let users = fileData.success ? fileData.data : [];
+
+  const user = users.find(user => {
+    return user.email == token;
+  })
+
+  if (!user)
+    return res.status(401).json({ message: 'invalid token' });
+
+  delete user.password;
+
+  res.json(user);
+})
+
 router.post('/authenticate', (req, res) => {
   let userData = req.body;
 
@@ -10,26 +31,37 @@ router.post('/authenticate', (req, res) => {
   const fileData = fileHandling.readAsync('./assets/users.json');
   let users = fileData.success ? fileData.data : [];
 
-  const userRecordIndex = users.findIndex(user => {
+  const user = users.find(user => {
     return user.email == userData.email;
   })
 
-  if (userRecordIndex === -1)
-    return res.status(401).json({ message: 'This email is not registerd' });
+  if (!user)
+    return res.status(401).json({ message: 'This email is not registered' });
 
-  if (users[userRecordIndex].password !== userData.password)
+  if (user.password !== userData.password)
     return res.status(401).json({ message: 'password is incorrect' });
 
-  res.json({ email: userData.email, token: 'fake jwt token', firstName: users[userRecordIndex].firstName, lastName: users[userRecordIndex].lastName });
+  delete user.password;
+
+  res.json({ user, token: user.email });
 })
 
 router.post('/register', (req, res) => {
   let usersData = req.body;
 
+  if (!usersData.email)
+    return res.status(400).json({ message: 'please provide email' })
+
+  if (!usersData.password)
+    return res.status(400).json({ message: 'please provide password' })
+
+  if (!usersData.roleName)
+    usersData.roleName = 'user';
+
   const fileData = fileHandling.readAsync('./assets/users.json');
   let users = fileData.success ? fileData.data : [];
 
-  const isUserExist = users.some(user => {
+  const isUserExist = users.find(user => {
     return user.email == usersData.email;
   })
 
@@ -37,7 +69,8 @@ router.post('/register', (req, res) => {
     return res.status(409).json({ message: 'users already exist with this email' });
 
   users.push(usersData);
-  fileHandling.writeAsync('./assets/employees.json', employees);
+
+  fileHandling.writeAsync('./assets/users.json', users);
 
   res.json({ message: 'Registration successfully' });
 
