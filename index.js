@@ -18,4 +18,5 @@ app.use(bodyParser.json());
 app.use(routes);
 
 app.listen(4000, () => {
+   console.log('server running at 4000');
 });
