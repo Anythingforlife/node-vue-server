@@ -3,6 +3,10 @@ const fileHandling = require('../_helpers/fileHandling');
 
 router.post('/', (req, res) => {
   const employee = req.body;
+
+  if (!employee.employee_name)
+    return res.status(400).json({ message: 'please provide employee_name' })
+
   const fileData = fileHandling.readAsync('./assets/employees.json');
   let employees = fileData.success ? fileData.data : [];
   const total = employees.length;
@@ -25,9 +29,30 @@ router.get('/', (req, res) => {
   res.json({ data: employees.slice(startIndex, endIndex), total: total });
 })
 
+router.get('/:id', (req, res) => {
+  const employeeId = req.params.id;
+
+  const fileData = fileHandling.readAsync('./assets/employees.json');
+  let employees = fileData.success ? fileData.data : [];
+
+  const employee = employees.find((employee => employee.id === employeeId))
+
+  if (!employee)
+    return res.status(404).json({ message: 'employee not found' })
+
+  res.json(employee);
+})
+
 router.put('/:id', (req, res) => {
   const id = req.params.id;
   const employee = req.body;
+
+  if (!employee.employee_name)
+    return res.status(400).json({ message: 'please provide employee_name' })
+
+  if (!employee.employee_age)
+    return res.status(400).json({ message: 'please provide employee_age' })
+
   const fileData = fileHandling.readAsync('./assets/employees.json');
   let employees = fileData.success ? fileData.data : [];
 
