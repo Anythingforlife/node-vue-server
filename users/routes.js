@@ -69,7 +69,6 @@ router.post('/register', (req, res) => {
     return res.status(409).json({ message: 'users already exist with this email' });
 
   users.push(usersData);
-
   fileHandling.writeAsync('./assets/users.json', users);
 
   res.json({ message: 'Registration successfully' });
