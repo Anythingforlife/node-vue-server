@@ -1,1 +1,17 @@
-[{"email":"anand@g.com","password":"omprakash","roleName":"admin"},{"email":"om@g.com","password":"omprakash","roleName":"admin"},{"email":"user@g.com","password":"omprakash","roleName":"user"}]	
+[
+    {
+        "email": "anand@g.com",
+        "password": "omprakash",
+        "roleName": "admin"
+    },
+    {
+        "email": "om@g.com",
+        "password": "omprakash",
+        "roleName": "admin"
+    },
+    {
+        "email": "user@g.com",
+        "password": "omprakash",
+        "roleName": "user"
+    }
+]

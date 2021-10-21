@@ -17,16 +17,32 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-  const perPage = req.query.perPage;
-  const currentPage = req.query.currentPage;
+  try {
+    const perPage = req.query.perPage;
+    const currentPage = req.query.currentPage;
+    const search = req.query.search;
 
-  const fileData = fileHandling.readAsync('./assets/employees.json');
-  let employees = fileData.success ? fileData.data : [];
+    if (!perPage)
+      return res.status(400).json({ message: 'please provide perPage' })
 
-  const total = employees.length;
-  const startIndex = perPage * (currentPage - 1);
-  const endIndex = perPage * currentPage;
-  res.json({ data: employees.slice(startIndex, endIndex), total: total });
+    if (!currentPage)
+      return res.status(400).json({ message: 'please provide currentPage' })
+
+    const fileData = fileHandling.readAsync('./assets/employees.json');
+    let employees = fileData.success ? fileData.data : [];
+
+    if (search)
+      employees = employees.filter((employee) => {
+        return employee.employee_name.startsWith(search);
+      });
+
+    const total = employees.length;
+    const startIndex = perPage * (currentPage - 1);
+    const endIndex = perPage * currentPage;
+    res.json({ data: employees.slice(startIndex, endIndex), total: total });
+  } catch (error) {
+    return res.status(500).json({ message: error.message })
+  }
 })
 
 router.get('/:id', (req, res) => {
